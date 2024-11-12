@@ -42,7 +42,7 @@ model = SimpleModel()
 
 # 손실 함수 및 옵티마이저 정의
 criterion = nn.NLLLoss()  #LogSoftmax에 맞는 NLLLoss 사용
-optimizer = optim.Adam(model.parameters(), lr=0.01) #lr가 너무 낮게 설정되어있음 0.00001 -> 0.01, SGD는 학습이 많이 필요함 -> Adam 옵티마이저로 바꿔 더욱 효율적으로 학습 그리고 lr가 점점 낮아지기 때문에 조금 크게 잡음
+optimizer = optim.Adam(model.parameters(), lr=0.001) #lr가 너무 낮게 설정되어있음 0.00001 -> 0.01, SGD는 학습이 많이 필요함 -> Adam 옵티마이저로 바꿔 더욱 효율적으로 학습 그리고 lr가 점점 낮아지기 때문에 조금 크게 잡음
 
 # 훈련
 def train(model, train_loader, criterion, optimizer, epochs=1): #epochs를 16
@@ -67,6 +67,7 @@ def evaluate(model, test_loader):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
     print(f'Accuracy: {100 * correct / total:.2f}%')
+
 
 # 실행
 train(model, train_loader, criterion, optimizer, epochs=16)
