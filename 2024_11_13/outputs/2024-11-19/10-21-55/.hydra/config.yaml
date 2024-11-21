@@ -1,0 +1,8 @@
+train:
+  optim: SGD
+  loss_f: CrossEntropyLoss
+  lr: 0.001
+  epoch: 16
+data:
+  train_ratio: 0.8
+  batch_size: 256
