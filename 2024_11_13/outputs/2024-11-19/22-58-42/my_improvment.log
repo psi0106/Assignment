@@ -1,2 +1,0 @@
-[2024-11-19 22:58:42,836][root][INFO] - Train_dataset:48000, Valid_dataset:12000, Test_dataset:10000
-[2024-11-19 22:58:42,838][root][INFO] - Train_loader:40, Valid_loader:47, Test_loader:10000

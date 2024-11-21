@@ -1,5 +1,0 @@
-[2024-11-19 23:46:57,144][root][INFO] - Train_dataset:48000, Valid_dataset:12000, Test_dataset:10000
-[2024-11-19 23:46:57,145][root][INFO] - Train_loader:40, Valid_loader:47, Test_loader:10000
-[2024-11-19 23:47:07,957][root][INFO] - Epoch [1/1], Loss: 0.4469
-[2024-11-19 23:47:10,346][root][INFO] - Loss: 0.5171
-[2024-11-19 23:47:12,335][root][INFO] - Accuracy: 88.44%

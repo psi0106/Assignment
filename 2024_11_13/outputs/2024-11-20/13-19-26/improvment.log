@@ -1,8 +1,0 @@
-[2024-11-20 13:19:26,902][root][INFO] - train_dataset: 48000 | valid_dataset: 12000 | test_dataset: 10000
-[2024-11-20 13:19:26,903][root][INFO] - train_loader: 375 | valid_loader: 94 | test_loader: 79
-[2024-11-20 13:19:26,904][root][INFO] - success to load model: SimpleModel(
-  (fc1): Linear(in_features=784, out_features=10, bias=True)
-)
-[2024-11-20 13:19:46,088][root][INFO] - Epoch [1/1], Loss: 11.6872, Validation Accuracy: 79.91%
-[2024-11-20 13:19:46,091][root][INFO] - Best model weights saved with accuracy: 79.91%
-[2024-11-20 13:19:49,154][root][INFO] - Accuracy: 81.05%
