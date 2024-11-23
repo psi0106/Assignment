@@ -9,17 +9,18 @@ from torchvision.transforms import v2
 from omegaconf import OmegaConf
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import random_split
+import numpy as np
 
 # 어떤 데이터 증강을 할 것인지 정의하는 함수
 def get_transform():
     transform = v2.Compose([
         v2.RandomAffine(
-            degrees=0,  # 회전 X
-            translate=(3 / 28, 3 / 28),  # shift 연산을 3 픽셀
-            scale=None,  # 스케일링 X
-            shear=None  # 기울이기 X
+            scale=(0.8, 1.2),
+            translate=(0.1, 0.1),
+            degrees=0,
         ),
-        v2.ToTensor()  # np.array -> torch.tensor
+        v2.ToImage(),  # PIL -> TVTensor
+        v2.ToDtype(dtype=torch.float32, scale=True),  # 데이터 타입을 float(실수형)으로 만들어 주고 0~1의 사이값으로 변환
     ])
 
     return transform
@@ -39,9 +40,9 @@ class SimpleModel(nn.Module):
 
 # 데이터 다운
 def get_dataset(config, transform=None):
-    train_data = MNIST(root='./data', train=True, download=True, transform=transform)  # train_dataset을 transform을 적용하여 다운
+    train_data = MNIST(root='./data', train=True, download=True, transform=transform)  # train_dataset을 다운
     train_data, valid_data = random_split(train_data, [int(config.data.train_ratio*len(train_data)), len(train_data) - int(config.data.train_ratio*len(train_data))] )  # train과 valid 나누기
-    test_data = MNIST(root='./data', train=False, download=True, transform=transform)  # test_dataset을 transform을 적용하여 다운
+    test_data = MNIST(root='./data', train=False, download=True, transform=transform)  # test_dataset을 다운
 
     return train_data, valid_data, test_data
 
@@ -59,17 +60,18 @@ def get_loader(config, train_dataset, valid_dataset, test_dataset):
 
 # 훈련
 def train(model, train_loader, valid_loader, criterion, optimizer, writer, epochs=1):
+    train_iter = 0  # 학습 iter 초기화
+    valid_iter = 0  # 검증 iter 초기화
     model.train()  # batch_norm과 drop_out을 활성화
     for epoch in range(epochs):
-        train_iter = 0  # 학습 iter 초기화
-        valid_iter = 0  # 검증 iter 초기화
+
 
         # 학습
         for images, labels in train_loader:
             outputs = model(images)  # batch_size로 받은 데이터들을 불러온 model에 feedforward
             loss = criterion(outputs, labels)  # # 불러온 loss_function으로 loss 계산
             train_iter += 1  # iter 매 학습마다 1 더하기
-            logging.info(f'Iter [{train_iter}/], Loss: {loss.item():.4f}')  # 매 학습마다 loss 출력
+            logging.info(f'Iter [{train_iter}], Loss: {loss.item():.4f}')  # 매 학습마다 loss 출력
             writer.add_scalar("Loss/train", loss, train_iter)  # 매 학습마다 loss 저장
             optimizer.zero_grad()  # 기울기 초기화
             loss.backward()  # 백프로파게이션으로 gradient 계산
@@ -82,7 +84,7 @@ def train(model, train_loader, valid_loader, criterion, optimizer, writer, epoch
                 outputs = model(images)  # batch_size로 받은 데이터들을 불러온 model에 feedforward
                 loss = criterion(outputs, labels)  # 불러온 loss_function으로 loss 계산
                 valid_iter += 1
-                logging.info(f'Iter [{valid_iter}/], Loss: {loss.item():.4f}')  # valid_iter에 따른 loss 출력
+                logging.info(f'Iter [{valid_iter}], Loss: {loss.item():.4f}')  # valid_iter에 따른 loss 출력
                 writer.add_scalar("Loss/valid", loss, valid_iter)  # writer에 valid_iter에 따른 loss 저장
 
         model.train()  # 다시 학습을 위해 학습 모드로 변환
@@ -110,11 +112,15 @@ def main(cfg):
 
     transform = get_transform()  # transform 불러 오기
 
-    train_dataset, valid_dataset, test_dataset = get_dataset(cfg, transform)  # dataset을 trasform을 적용시켜 다운 및 config 전달하여 train_ratio 전달
+    train_dataset, valid_dataset, test_dataset = get_dataset(cfg, transform)  # dataset을 trasform을 적용시켜 다운 및 config 전달하여 train_ratio 전달 type = torch.utils.data.dataset
     logging.info(f"Train_dataset:{len(train_dataset)}, Valid_dataset:{len(valid_dataset)}, Test_dataset:{len(test_dataset)}")  # dataset 확인
 
-    train_loader, valid_loader, test_loader = get_loader(cfg, train_dataset, valid_dataset, test_dataset)  # 다운 받은 dataset을 get_loader로 보내 학습에 적합한 dataloader 형태로 변환
+    print(type(train_dataset))
+
+    train_loader, valid_loader, test_loader = get_loader(cfg, train_dataset, valid_dataset, test_dataset)  # 다운 받은 dataset을 get_loader로 보내 학습에 적합한 dataloader 형태로 변환 type = torch.utils.data.dataloader
     logging.info(f"Train_loader:{len(test_loader)}, Valid_loader:{len(valid_loader)}, Test_loader:{len(test_dataset)}")  # dataloader 확인
+
+    print(train_loader)
 
     model = SimpleModel()  # 모델 불러 오기
     logging.info(f"success to load model: {model}")  # 모델 확인
